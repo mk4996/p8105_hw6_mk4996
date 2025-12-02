@@ -191,8 +191,11 @@ birthweight_mod =
   )
 
 summary(birthweight_mod)
-
 ```
+
+* **Comments**
+I selected gestational age, birth length, infant sex, maternal age, and parity as predictors because these infant and maternal factors are widely known to influence birthweight and provide a biologically reasonable baseline model.
+
 
 ## 3. Diagnostic Plot: Residuals vs Fitted Values
 ```{r}
@@ -277,7 +280,7 @@ cv_df |>
 
 ```
 
-* **Comment**
+* **Comments**
 
 Based on the cross-validated RMSE, Model B (the interaction model) performed best, showing the lowest prediction error among the three models. My proposed model and Model A had higher and very similar RMSE values, indicating comparable predictive performance but worse accuracy than Model B. Although Model B is the most complex model, in this dataset its flexibility appears to improve prediction.
 
