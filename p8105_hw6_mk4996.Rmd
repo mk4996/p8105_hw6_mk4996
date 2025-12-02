@@ -70,6 +70,51 @@ or_ci_baltimore
 
 ```
 
+## each city
+```{r}
+city_or_results = 
+  homicide_df |> 
+  nest(data = -city_state) |> 
+  mutate(
+    models = map(
+      data,
+      \(df) glm(
+        resolved ~ victim_age + victim_race + victim_sex,
+        data   = df,
+        family = binomial()
+      )
+    ),
+    results = map(
+      models,
+      \(mod) broom::tidy(mod, conf.int = TRUE)
+    )
+  ) |>
+  select(-data, -models) |>
+  unnest(results) |>
+  mutate(
+    OR       = exp(estimate),
+    conf.low = exp(conf.low),
+    conf.high = exp(conf.high)
+  ) |>
+  filter(term == "victim_sexMale") |>
+  select(city_state, OR, conf.low, conf.high)
+
+city_or_results
+
+city_or_results |> 
+  mutate(city_state = fct_reorder(city_state, OR)) |>
+  ggplot(aes(x = city_state, y = OR)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0) +
+  geom_hline(yintercept = 1, linetype = "dashed") +
+  coord_flip() +
+  labs(
+    x = "City",
+    y = "Adjusted OR (Male vs Female)",
+    title = "Adjusted OR of case resolution, Male vs Female victims"
+  )
+
+```
 
 
 # Problem 2
