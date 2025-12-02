@@ -118,7 +118,49 @@ city_or_results |>
 
 
 # Problem 2
+## bootstrap: weather data
 ```{r}
+data("weather_df")
+
+weather_fit = 
+  weather_df |>
+  lm(tmax ~ tmin + prcp, data = _)
+
+set.seed(1)
+
+boot_results = 
+  weather_df |> 
+  modelr::bootstrap(n = 5000) |> 
+  mutate(
+    models = map(
+      strap,
+      \(df) lm(tmax ~ tmin + prcp, data = df)
+    ),
+    glance_res = map(models, broom::glance),
+    tidy_res   = map(models, broom::tidy)
+  ) |>
+  select(-strap, -models) |>
+  mutate(
+    glance_res = map(glance_res, as_tibble),
+    tidy_res   = map(tidy_res,   as_tibble)
+  ) |>
+  unnest(glance_res) |>
+
+  select(.id, r.squared, tidy_res) |>
+  unnest(tidy_res) |>
+  select(.id, r.squared, term, estimate) |>
+
+  pivot_wider(
+    names_from  = term,
+    values_from = estimate
+  ) |>
+  transmute(
+    .id,
+    r_sq          = r.squared,
+    beta1_over_2  = tmin / prcp    
+  )
+
+boot_results
 
 ```
 
