@@ -165,7 +165,18 @@ boot_results
 ```
 
 # Problem 3
+## Load and Prepare Birthweight Data
 ```{r}
+birthweight_df = 
+  read_csv("./birthweight.csv") |>
+  
+  mutate(
+    babysex = factor(babysex),
+    frace   = factor(frace),
+    mrace   = factor(mrace),
+    malform = factor(malform)
+  ) |>
+  drop_na()
 
 ```
 
