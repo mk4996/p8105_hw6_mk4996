@@ -41,6 +41,35 @@ homicide_df =
 
 ```
 
+## Baltimore, MD
+```{r}
+baltimore_df = 
+  homicide_df |> 
+  filter(city_state == "Baltimore, MD")
+
+fit_baltimore = 
+  baltimore_df |> 
+  glm(
+    resolved ~ victim_age + victim_race + victim_sex,
+    data   = _,
+    family = binomial()
+  )
+
+or_ci_baltimore = 
+  fit_baltimore |> 
+  broom::tidy(conf.int = TRUE) |> 
+  mutate(
+    OR       = exp(estimate),
+    conf.low = exp(conf.low),
+    conf.high = exp(conf.high)
+  ) |>
+  filter(term == "victim_sexMale") |>
+  select(term, OR, conf.low, conf.high)
+
+or_ci_baltimore
+
+```
+
 
 
 # Problem 2
