@@ -277,5 +277,9 @@ cv_df |>
 
 ```
 
+* **Comment**
+
+Based on the cross-validated RMSE, Model B (the interaction model) performed best, showing the lowest prediction error among the three models. My proposed model and Model A had higher and very similar RMSE values, indicating comparable predictive performance but worse accuracy than Model B. Although Model B is the most complex model, in this dataset its flexibility appears to improve prediction.
+
 
 
