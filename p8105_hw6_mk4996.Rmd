@@ -5,7 +5,52 @@ date: "2025-12-01"
 output: github_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+library(tidyverse)
+library(p8105.datasets)
+library(modelr)
+library(broom)
+
+set.seed(1)
 ```
+
+# Problem 1
+## filtering the data 
+```{r}
+homicide_raw = 
+  read_csv("./homicide-data.csv")
+
+homicide_df = 
+  homicide_raw |> 
+  mutate(
+    city_state = str_c(city, ", ", state),
+    resolved  = as.numeric(disposition == "Closed by arrest")
+  ) |> 
+
+  filter(
+    !(city_state %in% c(
+      "Dallas, TX", "Phoenix, AZ", "Kansas City, MO", "Tulsa, AL"
+    ))
+  ) |>
+
+  filter(victim_race %in% c("White", "Black")) |>
+
+  mutate(victim_age = as.numeric(victim_age)) |>
+
+  select(city_state, resolved, victim_age, victim_sex, victim_race)
+
+```
+
+
+
+# Problem 2
+```{r}
+
+```
+
+# Problem 3
+```{r}
+
+```
+
 
