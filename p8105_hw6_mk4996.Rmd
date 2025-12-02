@@ -194,4 +194,17 @@ summary(birthweight_mod)
 
 ```
 
+## 3. Diagnostic Plot: Residuals vs Fitted Values
+```{r}
+birthweight_df |>
+  modelr::add_residuals(birthweight_mod) |>
+  modelr::add_predictions(birthweight_mod) |>
+  ggplot(aes(x = pred, y = resid)) +
+  geom_point(alpha = 0.5) +
+  labs(
+    x = "Fitted values",
+    y = "Residuals",
+    title = "Residuals vs Fitted: Proposed Birthweight Model"
+  )
+```
 
