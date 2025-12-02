@@ -165,7 +165,7 @@ boot_results
 ```
 
 # Problem 3
-## Load and Prepare Birthweight Data
+## 1. Load and Prepare Birthweight Data
 ```{r}
 birthweight_df = 
   read_csv("./birthweight.csv") |>
@@ -177,6 +177,20 @@ birthweight_df =
     malform = factor(malform)
   ) |>
   drop_na()
+
+```
+
+## 2. Fit Proposed Birthweight Model (Infant + Maternal Predictors)
+```{r}
+birthweight_mod =
+  birthweight_df |>
+  lm(
+    bwt ~ gaweeks + blength + babysex +
+          momage + parity,
+    data = _
+  )
+
+summary(birthweight_mod)
 
 ```
 
