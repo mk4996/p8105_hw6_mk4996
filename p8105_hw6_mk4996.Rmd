@@ -208,3 +208,16 @@ birthweight_df |>
   )
 ```
 
+## 4. Fit Comparison Models (Model A and Model B)
+```{r}
+# Model A: gestational age + birth length
+birthweight_mod_A =
+  birthweight_df |>
+  lm(bwt ~ blength + gaweeks, data = _)
+
+# Model B: full three-way interaction
+birthweight_mod_B =
+  birthweight_df |>
+  lm(bwt ~ bhead * blength * babysex, data = _)
+```
+
