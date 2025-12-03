@@ -15,7 +15,7 @@ set.seed(1)
 ```
 
 # Problem 1
-## filtering the data 
+## Filtering the data 
 ```{r}
 homicide_raw = 
   read_csv("./homicide-data.csv")
@@ -70,7 +70,7 @@ or_ci_baltimore
 
 ```
 
-## each city
+## Each city
 ```{r}
 city_or_results = 
   homicide_df |> 
@@ -118,7 +118,7 @@ city_or_results |>
 
 
 # Problem 2
-## bootstrap: weather data
+## Bootstrap: weather data
 ```{r}
 data("weather_df")
 
@@ -154,22 +154,75 @@ boot_results =
     names_from  = term,
     values_from = estimate
   ) |>
-  transmute(
-    .id,
-    r_sq          = r.squared,
-    beta1_over_2  = tmin / prcp    
-  )
+  mutate(
+    r_sq         = r.squared,
+    beta1_over_2 = tmin / prcp
+  ) |>
+  select(.id, r_sq, beta1_over_2)
 
 boot_results
 
 ```
 
+## Density Plot
+```{r}
+rsquare_plot = boot_results |> 
+  ggplot(aes(x = r_sq)) +
+  geom_density() +
+  labs(
+    x = "R-square hat estimates",
+    y = "Density",
+    title = "Bootstrap Distribution of r² hat")
+
+rsquare_plot
+
+# β¹ ÷ β² distribution
+slope_plot = boot_results |> 
+  ggplot(aes(x = beta1_over_2)) +
+  geom_density() +
+  labs(
+    x = "β1 hat/ β2 hat estimates",
+    y = "Density",
+    title = "Bootstrap Distribution of β1 hat/ β2 hat")
+
+slope_plot
+```
+
+## 95%CI
+```{r}
+boot_summary =
+  boot_results |>
+  summarize(
+    r_sq_low  = quantile(r_sq,         0.025),
+    r_sq_high = quantile(r_sq,         0.975),
+    ratio_low = quantile(beta1_over_2, 0.025),
+    ratio_high = quantile(beta1_over_2, 0.975)
+  )
+
+boot_summary
+```
+
+* **Comments**
+
+The bootstrap distribution of \( \hat{R}^2 \) is narrow and centered around
+0.94, indicating that the model’s explanatory power is stable across samples.
+The 95% confidence interval for \( R^2 \) is [0.934, 0.947].
+
+In contrast, the distribution of \( \hat{\beta}_1 / \hat{\beta}_2 \) is much wider, showing substantial uncertainty in this ratio. Its 95% confidence interval is [–280, –126].
+
+
 # Problem 3
 ## 1. Load and Prepare Birthweight Data
 ```{r}
 birthweight_df = 
-  read_csv("./birthweight.csv") |>
-  
+  read_csv("./birthweight.csv") 
+
+  # Check missing values
+colSums(is.na(birthweight_df))　
+  skimr::skim(birthweight_df)
+
+  birthweight_df =
+  birthweight_df |>
   mutate(
     babysex = factor(babysex),
     frace   = factor(frace),
@@ -177,8 +230,12 @@ birthweight_df =
     malform = factor(malform)
   ) |>
   drop_na()
-
 ```
+
+* **Comments**
+
+The dataset contains no missing values, and all variables show complete data. Summary statistics and distributions appear reasonable, with no implausible values or obvious data issues.
+
 
 ## 2. Fit Proposed Birthweight Model (Infant + Maternal Predictors)
 ```{r}
@@ -194,6 +251,7 @@ summary(birthweight_mod)
 ```
 
 * **Comments**
+
 I selected gestational age, birth length, infant sex, maternal age, and parity as predictors because these infant and maternal factors are widely known to influence birthweight and provide a biologically reasonable baseline model.
 
 
@@ -211,6 +269,11 @@ birthweight_df |>
   )
 ```
 
+* **Comments**
+
+The residuals show increasing spread at higher fitted values, suggesting heteroscedasticity. This indicates that the linear model may not fully capture patterns in the data.
+
+
 ## 4. Fit Comparison Models (Model A and Model B)
 ```{r}
 # Model A: gestational age + birth length
@@ -223,6 +286,11 @@ birthweight_mod_B =
   birthweight_df |>
   lm(bwt ~ bhead * blength * babysex, data = _)
 ```
+
+* **Comments**
+
+Model A represents a simple baseline using only length and gestational age. Model B is intentionally more flexible, including all two- and three-way interactions between head circumference, length, and sex.
+
 
 ## 5. Cross-Validation Setup and Model Training
 ```{r}
@@ -259,6 +327,13 @@ cv_df =
   )
 ```
 
+* **Comments**
+
+Cross-validation was performed using 100 random train/test splits via crossv_mc.
+For each split, the three models were re-fit to the training data and RMSE was calculated on the test data.
+Some warnings occurred for Model B due to rank deficiency in certain splits, which is expected given the high flexibility of the three-way interaction model.
+
+
 ## 6. Compare Cross-Validated RMSE Across Models
 ```{r}
 cv_df |>
@@ -283,6 +358,4 @@ cv_df |>
 * **Comments**
 
 Based on the cross-validated RMSE, Model B (the interaction model) performed best, showing the lowest prediction error among the three models. My proposed model and Model A had higher and very similar RMSE values, indicating comparable predictive performance but worse accuracy than Model B. Although Model B is the most complex model, in this dataset its flexibility appears to improve prediction.
-
-
 
